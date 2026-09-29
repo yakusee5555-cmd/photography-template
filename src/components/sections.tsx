@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { marqueeItems, projects, services, stats, studio, testimonials } from "../data";
+import { Link } from "react-router-dom";
+import { detailStrip, marqueeItems, projects, services, stats, studio, testimonials } from "../data";
 import { useParallax } from "../hooks";
 
 /* ================= Marquee ================= */
@@ -111,7 +112,7 @@ export function Hero({ ready }: { ready: boolean }) {
             <div className="rise-mask">
               <span className="flex flex-wrap gap-4" style={{ ["--rise-d" as string]: "600ms" }}>
                 <a href="#work" className="btn-gold">View selected work <span aria-hidden>↓</span></a>
-                <a href="#contact" className="btn-ghost">Book your date</a>
+                <Link to="/contact" className="btn-ghost">Book your date</Link>
               </span>
             </div>
           )}
@@ -175,9 +176,9 @@ export function Work() {
 
         <div className="border-t hairline" onMouseLeave={() => setActive(0)}>
           {projects.map((p, i) => (
-            <a
+            <Link
               key={p.title}
-              href="#contact"
+              to="/work"
               className="work-row group grid grid-cols-[auto_1fr_auto] md:grid-cols-[80px_1fr_auto_auto] items-center gap-4 md:gap-8 py-7 md:py-9 border-b hairline px-2 md:px-4"
               onMouseEnter={() => setActive(i)}
             >
@@ -201,7 +202,7 @@ export function Work() {
               </span>
               <span className="work-arrow hidden md:block text-4xl text-gold" aria-hidden>↗</span>
               <span className="hidden lg:block" />
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -209,6 +210,9 @@ export function Work() {
           Every project above is a full gallery — 400 to 900 hand-edited frames.
           Ask us and we'll share complete wedding stories, not just highlights.
         </p>
+        <Link to="/work" className="rv btn-ghost mt-6 inline-flex">
+          View the full gallery →
+        </Link>
       </div>
 
       {/* pinned preview card lives in the section header now */}
@@ -253,7 +257,10 @@ export function Services() {
             Destination weddings across India? We travel — palaces, deserts,
             beaches, mountains. Travel is billed at cost, nothing more.
           </p>
-          <a href="#contact" className="btn-gold shrink-0">Get a quote →</a>
+          <div className="flex flex-wrap gap-4 shrink-0">
+            <Link to="/services" className="btn-ghost">Explore all services →</Link>
+            <Link to="/contact" className="btn-gold">Get a quote →</Link>
+          </div>
         </div>
       </div>
     </section>
@@ -313,6 +320,10 @@ export function Studio() {
             <p className="deva text-2xl text-gold/90 pt-2">हर फ्रेम में एक कहानी —</p>
           </div>
 
+          <Link to="/studio" className="rv btn-ghost mt-8 inline-flex" style={{ ["--rv-d" as string]: "200ms" }}>
+            More about the studio →
+          </Link>
+
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6">
             {stats.map((s, i) => (
               <div key={s.label} className="rv border-l-2 border-maroon pl-4" style={{ ["--rv-d" as string]: `${i * 90}ms` }}>
@@ -369,30 +380,36 @@ export function Testimonials() {
 
 /* ================= Detail strip ================= */
 export function DetailStrip() {
-  const imgs = [
-    { src: "/images/detail-hands.jpg", alt: "Bride's mehendi hands with jewelry" },
-    { src: "/images/detail-decor.jpg", alt: "Indian wedding decor with marigolds" },
-    { src: "/images/detail-jewelry.jpg", alt: "Indian bridal jewelry close-up" },
-    { src: "/images/marquee-1.jpg", alt: "Candid Indian wedding moment" },
-  ];
   return (
     <section className="py-20 md:py-28 overflow-hidden">
-      <div className="mx-auto max-w-7xl px-5 md:px-8 mb-10">
+      <div className="mx-auto max-w-7xl px-5 md:px-8 mb-10 flex items-end justify-between gap-6">
         <p className="rv eyebrow">Details we obsess over</p>
+        <p className="rv hidden md:block text-sm text-creamdim/70" style={{ ["--rv-d" as string]: "100ms" }}>
+          The small things are the big things
+        </p>
       </div>
-      {/* image marquee */}
+      {/* image marquee — never pauses, hover just zooms the tile */}
       <div className="overflow-hidden">
-        <div className="marquee-track marquee-rev gap-5 px-2" style={{ ["--marquee-t" as string]: "46s" }}>
+        <div className="marquee-track marquee-rev nopause gap-5 px-2" style={{ ["--marquee-t" as string]: "60s" }}>
           {[0, 1].map((dup) => (
-            <div key={dup} className="flex shrink-0 gap-5">
-              {imgs.map((im) => (
-                <img
-                  key={`${dup}-${im.src}`}
-                  src={im.src}
-                  alt={im.alt}
-                  loading="lazy"
-                  className="h-56 md:h-72 w-auto rounded-xl object-cover hover:scale-[1.03] transition-transform duration-500"
-                />
+            <div key={dup} className="flex shrink-0 gap-5" aria-hidden={dup === 1}>
+              {detailStrip.map((im) => (
+                <div
+                  key={`${dup}-${im.image}`}
+                  className="relative shrink-0 overflow-hidden rounded-xl group"
+                >
+                  <img
+                    src={im.image}
+                    alt={im.label}
+                    loading="lazy"
+                    className="h-56 md:h-80 w-auto object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent px-4 pt-8 pb-3">
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase text-cream">
+                      {im.label}
+                    </span>
+                  </div>
+                </div>
               ))}
             </div>
           ))}
@@ -402,66 +419,35 @@ export function DetailStrip() {
   );
 }
 
-/* ================= Contact / Footer ================= */
-export function Contact() {
+/* ================= Contact CTA band ================= */
+export function ContactCta() {
   return (
-    <footer id="contact" className="relative pt-24 md:pt-36 bg-coal overflow-hidden">
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="text-center mb-16">
-          <p className="rv eyebrow mb-6">Dates open for 2026 — 2027</p>
-          <h2 className="rv display display-black text-[13vw] md:text-[8vw] leading-[0.9]" style={{ ["--rv-d" as string]: "80ms" }}>
-            Let's create<br />
-            <span className="display-italic text-gold">your kahani</span>
-            <span className="deva text-gold text-[8vw] md:text-[5vw] ml-4">कहानी</span>
-          </h2>
-          <p className="rv mt-8 text-creamdim max-w-xl mx-auto text-base md:text-lg" style={{ ["--rv-d" as string]: "160ms" }}>
-            Tell us your date and your city. We'll reply within 24 hours with
-            availability, packages and a few full galleries to fall in love with.
-          </p>
-          <div className="rv mt-10 flex flex-wrap justify-center gap-4" style={{ ["--rv-d" as string]: "240ms" }}>
-            <a href={studio.phoneHref} className="btn-gold text-lg !px-8 !py-4">
-              <span aria-hidden>✆</span> {studio.phone}
-            </a>
-            <a href={`mailto:${studio.email}`} className="btn-ghost text-lg !px-8 !py-4">
-              {studio.email}
-            </a>
-          </div>
-        </div>
-
-        <div className="grid sm:grid-cols-3 gap-8 py-12 border-t hairline text-sm">
-          <div className="rv">
-            <div className="eyebrow mb-4">Studio</div>
-            <p className="text-creamdim leading-relaxed">
-              {studio.address}<br />{studio.hours}
-            </p>
-          </div>
-          <div className="rv" style={{ ["--rv-d" as string]: "100ms" }}>
-            <div className="eyebrow mb-4">Follow the stories</div>
-            <a href={studio.instagramHref} className="text-creamdim hover:text-gold transition-colors text-lg font-semibold">
-              {studio.instagram}
-            </a>
-            <p className="text-creamdim/70 mt-2">Daily frames, reels & behind-the-scenes.</p>
-          </div>
-          <div className="rv" style={{ ["--rv-d" as string]: "200ms" }}>
-            <div className="eyebrow mb-4">Begin</div>
-            <a href="#top" className="text-creamdim hover:text-gold transition-colors">
-              Back to top ↑
-            </a>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-8 border-t hairline text-xs text-creamdim/70">
-          <span>© 2026 {studio.name}. All stories reserved.</span>
-          <span className="deva text-base text-gold/70">{studio.deva} · {studio.city}</span>
+    <section className="relative py-24 md:py-36 overflow-hidden">
+      <div aria-hidden className="pointer-events-none select-none absolute inset-0 flex items-center justify-center">
+        <div className="display display-black text-[26vw] leading-none text-stroke opacity-[0.12] whitespace-nowrap">
+          कहानी
         </div>
       </div>
-
-      {/* giant footer word */}
-      <div aria-hidden className="select-none pointer-events-none overflow-hidden -mb-[4vw]">
-        <div className="display display-black text-[22vw] leading-[0.8] text-center text-stroke opacity-25 whitespace-nowrap">
-          KAHANI
+      <div className="relative mx-auto max-w-7xl px-5 md:px-8 text-center">
+        <p className="rv eyebrow mb-6">Dates open for 2026 — 2027</p>
+        <h2 className="rv display display-black text-[13vw] md:text-[8vw] leading-[0.9]" style={{ ["--rv-d" as string]: "80ms" }}>
+          Let's create<br />
+          <span className="display-italic text-gold">your kahani</span>
+          <span className="deva text-gold text-[8vw] md:text-[5vw] ml-4">कहानी</span>
+        </h2>
+        <p className="rv mt-8 text-creamdim max-w-xl mx-auto text-base md:text-lg" style={{ ["--rv-d" as string]: "160ms" }}>
+          Tell us your date, your city and what you're dreaming of.
+          We'll reply within 24 hours with availability and packages.
+        </p>
+        <div className="rv mt-10 flex flex-wrap justify-center gap-4" style={{ ["--rv-d" as string]: "240ms" }}>
+          <Link to="/contact" className="btn-gold text-lg !px-8 !py-4">
+            Start your booking →
+          </Link>
+          <a href={studio.phoneHref} className="btn-ghost text-lg !px-8 !py-4">
+            <span aria-hidden>✆</span> {studio.phone}
+          </a>
         </div>
       </div>
-    </footer>
+    </section>
   );
 }

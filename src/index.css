@@ -91,6 +91,49 @@ body {
   animation: marquee-x var(--marquee-t, 32s) linear infinite;
 }
 .marquee-track:hover { animation-play-state: paused; }
+/* the "details we obsess over" strip never pauses — hover only zooms the tile */
+.marquee-track.nopause:hover { animation-play-state: running; }
+
+/* ---------- page transitions ---------- */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.page-in { animation: pageIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ---------- contact form ---------- */
+.field { display: block; }
+.field > span {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.field-input {
+  width: 100%;
+  background: rgba(244, 236, 221, 0.04);
+  border: 1px solid rgba(244, 236, 221, 0.16);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  color: var(--cream);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+.field-input::placeholder { color: rgba(244, 236, 221, 0.35); }
+.field-input:focus {
+  border-color: var(--gold);
+  background: rgba(244, 236, 221, 0.07);
+  box-shadow: 0 0 0 3px rgba(207, 161, 79, 0.15);
+}
+.field-input option { background: #1d1713; color: var(--cream); }
+input[type="date"].field-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(0.4) saturate(3) hue-rotate(-15deg);
+  cursor: pointer;
+}
 .marquee-rev { animation-direction: reverse; }
 
 /* ---------- hero load-in ---------- */
