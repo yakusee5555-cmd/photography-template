@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { marqueeItems, projects, services, stats, studio, testimonials } from "../data";
 import { useParallax } from "../hooks";
 
@@ -133,47 +133,53 @@ export function Hero({ ready }: { ready: boolean }) {
 
 /* ================= Work ================= */
 export function Work() {
-  const floatRef = useRef<HTMLImageElement | null>(null);
-  const [active, setActive] = useState<string | null>(null);
-  const raf = useRef(0);
-  const target = useRef({ x: 0, y: 0 });
-  const cur = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const el = floatRef.current;
-    if (!el) return;
-    const move = (e: MouseEvent) => { target.current = { x: e.clientX, y: e.clientY }; };
-    const loop = () => {
-      raf.current = requestAnimationFrame(loop);
-      cur.current.x += (target.current.x - cur.current.x) * 0.12;
-      cur.current.y += (target.current.y - cur.current.y) * 0.12;
-      el.style.left = `${cur.current.x}px`;
-      el.style.top = `${cur.current.y}px`;
-    };
-    window.addEventListener("mousemove", move, { passive: true });
-    loop();
-    return () => {
-      window.removeEventListener("mousemove", move);
-      cancelAnimationFrame(raf.current);
-    };
-  }, []);
+  const [active, setActive] = useState(0);
+  const shown = projects[active] ?? projects[0];
 
   return (
     <section id="work" className="relative py-24 md:py-36">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <Heading
-          eyebrow="Selected work · 2024 — 2025"
-          title={<>Stories we've <span className="display-italic text-gold">told</span></>}
-        />
+        <div className="flex items-end justify-between gap-8 mb-12 md:mb-16">
+          <div className="mb-0">
+            <p className="rv eyebrow mb-5">Selected work · 2024 — 2025</p>
+            <h2 className="rv display display-black text-5xl md:text-7xl lg:text-8xl" style={{ ["--rv-d" as string]: "80ms" }}>
+              Stories we've <span className="display-italic text-gold">told</span>
+            </h2>
+          </div>
 
-        <div className="border-t hairline">
+          {/* pinned preview card — swaps image as you hover each row */}
+          <div className="rv hidden md:block shrink-0 relative w-52 lg:w-60" style={{ ["--rv-d" as string]: "160ms" }}>
+            <div className="absolute -inset-2 rounded-2xl border border-gold/40 rotate-3" aria-hidden />
+            <div className="relative overflow-hidden rounded-xl shadow-2xl rotate-2 aspect-[3/4] bg-coal">
+              {projects.map((p, i) => (
+                <img
+                  key={p.image}
+                  src={p.image}
+                  alt=""
+                  aria-hidden
+                  loading={i === 0 ? "eager" : "lazy"}
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+                    i === active ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                  }`}
+                />
+              ))}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent p-4 pt-10">
+                <div className="deva text-gold text-lg leading-none">{shown.deva}</div>
+                <div className="text-xs font-bold tracking-widest uppercase mt-1 text-cream">
+                  {shown.location} · {shown.year}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t hairline" onMouseLeave={() => setActive(0)}>
           {projects.map((p, i) => (
             <a
               key={p.title}
               href="#contact"
               className="work-row group grid grid-cols-[auto_1fr_auto] md:grid-cols-[80px_1fr_auto_auto] items-center gap-4 md:gap-8 py-7 md:py-9 border-b hairline px-2 md:px-4"
-              onMouseEnter={() => setActive(p.image)}
-              onMouseLeave={() => setActive(null)}
+              onMouseEnter={() => setActive(i)}
             >
               <span className="deva text-xl md:text-2xl text-maroon w-10">
                 {String(i + 1).padStart(2, "0")}
@@ -205,14 +211,7 @@ export function Work() {
         </p>
       </div>
 
-      {/* floating hover image (desktop) */}
-      <img
-        ref={floatRef}
-        src={active ?? projects[0].image}
-        alt=""
-        aria-hidden
-        className={`work-float hidden md:block rounded-xl shadow-2xl ${active ? "on" : ""}`}
-      />
+      {/* pinned preview card lives in the section header now */}
     </section>
   );
 }
